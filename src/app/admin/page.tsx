@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -194,7 +194,7 @@ export default function AdminPage() {
     const fetchData = useCallback(async () => {
         setIsLoading(true);
         try {
-            const [musicRes, videoRes, blogRes, testimonialRes, socialLinkRes, contactRes] = await Promise.all([
+            const results = await Promise.allSettled([
                 fetch('/api/music-tracks'),
                 fetch('/api/videos'),
                 fetch('/api/blog/posts'),
@@ -202,12 +202,13 @@ export default function AdminPage() {
                 fetch('/api/social-links'),
                 fetch('/api/contact-submissions'),
             ]);
-            setMusicTracks(await musicRes.json());
-            setYoutubeVideos(await videoRes.json());
-            setBlogPosts(await blogRes.json());
-            setTestimonials(await testimonialRes.json());
-            setSocialLinks(await socialLinkRes.json());
-            setContactSubmissions(await contactRes.json());
+
+            if (results[0].status === 'fulfilled') setMusicTracks(await results[0].value.json());
+            if (results[1].status === 'fulfilled') setYoutubeVideos(await results[1].value.json());
+            if (results[2].status === 'fulfilled') setBlogPosts(await results[2].value.json());
+            if (results[3].status === 'fulfilled') setTestimonials(await results[3].value.json());
+            if (results[4].status === 'fulfilled') setSocialLinks(await results[4].value.json());
+            if (results[5].status === 'fulfilled') setContactSubmissions(await results[5].value.json());
 
         } catch (error) {
             console.error("Failed to fetch admin data", error);
@@ -546,8 +547,33 @@ export default function AdminPage() {
                     </TabsList>
                     
                     {/* Placeholder for TabsContent sections */}
-                    <TabsContent value="dashboard">
-                        {/* Your Dashboard UI */}
+                    <TabsContent value="dashboard" className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                                <CardHeader>
+                                    <CardTitle>Recent Music Tracks</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <ul className="space-y-2">
+                                        {musicTracks.slice(0, 5).map(track => (
+                                            <li key={track.id} className="text-sm text-gray-400">{track.title}</li>
+                                        ))}
+                                    </ul>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                                <CardHeader>
+                                    <CardTitle>Recent Contact Submissions</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <ul className="space-y-2">
+                                        {contactSubmissions.slice(0, 5).map(sub => (
+                                            <li key={sub.id} className="text-sm text-gray-400">{sub.name} - {sub.message.substring(0, 30)}...</li>
+                                        ))}
+                                    </ul>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </TabsContent>
                     <TabsContent value="music" className="space-y-6">
                         <div className="flex items-center justify-between">
@@ -588,23 +614,246 @@ export default function AdminPage() {
                             </CardContent>
                         </Card>
                     </TabsContent>
-                    <TabsContent value="youtube">
-                        {/* Your Video Management UI */}
+                    <TabsContent value="youtube" className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-semibold text-white">YouTube Videos</h2>
+                            <Button className="bg-yellow-600 text-white hover:bg-yellow-700" onClick={() => { setEditingVideo(null); setIsVideoModalOpen(true); }}>
+                                <Plus className="w-4 h-4 mr-2" /> Add Video
+                            </Button>
+                        </div>
+                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-800">
+                                            <tr>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Thumbnail</th>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Title</th>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Category</th>
+                                                <th className="p-4 text-center text-sm font-semibold text-gray-300">Published</th>
+                                                <th className="p-4 text-right text-sm font-semibold text-gray-300">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {youtubeVideos.map((video) => (
+                                                <tr key={video.id} className="border-b border-gray-800 last:border-b-0">
+                                                    <td className="p-4"><img src={`https://i.ytimg.com/vi/${video.videoId}/mqdefault.jpg`} alt={video.title} className="w-24 h-14 rounded-md object-cover" /></td>
+                                                    <td className="p-4 font-medium text-white">{video.title}</td>
+                                                    <td className="p-4 text-gray-400">{video.category}</td>
+                                                    <td className="p-4 text-center text-gray-400">{video.published ? '✅' : '❌'}</td>
+                                                    <td className="p-4 text-right">
+                                                        <Button variant="ghost" size="sm" className="mr-2 hover:bg-gray-800 text-gray-400 hover:text-white" onClick={() => { setEditingVideo(video); setIsVideoModalOpen(true); }}><Edit className="w-4 h-4" /></Button>
+                                                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-400 hover:bg-gray-800" onClick={() => handleVideoDelete(video.id)}><Trash2 className="w-4 h-4" /></Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
-                    <TabsContent value="blog">
-                         {/* Your Blog Management UI */}
+                    <TabsContent value="blog" className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-semibold text-white">Blog Posts</h2>
+                            <Button className="bg-yellow-600 text-white hover:bg-yellow-700" onClick={handleAddBlogPost}>
+                                <Plus className="w-4 h-4 mr-2" /> Add Post
+                            </Button>
+                        </div>
+                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-800">
+                                            <tr>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Title</th>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Slug</th>
+                                                <th className="p-4 text-center text-sm font-semibold text-gray-300">Published</th>
+                                                <th className="p-4 text-right text-sm font-semibold text-gray-300">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {blogPosts.map((post) => (
+                                                <tr key={post.id} className="border-b border-gray-800 last:border-b-0">
+                                                    <td className="p-4 font-medium text-white">{post.title}</td>
+                                                    <td className="p-4 text-gray-400">{post.slug}</td>
+                                                    <td className="p-4 text-center text-gray-400">{post.published ? '✅' : '❌'}</td>
+                                                    <td className="p-4 text-right">
+                                                        <Button variant="ghost" size="sm" className="mr-2 hover:bg-gray-800 text-gray-400 hover:text-white" onClick={() => handleEditBlogPost(post.id)}><Edit className="w-4 h-4" /></Button>
+                                                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-400 hover:bg-gray-800" onClick={() => handleDeleteBlogPost(post.id)}><Trash2 className="w-4 h-4" /></Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
-                    <TabsContent value="social">
-                        {/* Your Social Links UI */}
+                    <TabsContent value="social" className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-semibold text-white">Social Links</h2>
+                        </div>
+                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                            <CardHeader>
+                                <CardTitle>Add New Social Link</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex space-x-4">
+                                    <Input placeholder="Name (e.g., Twitter)" value={newSocialLink.name} onChange={(e) => setNewSocialLink({...newSocialLink, name: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                    <Input placeholder="URL" value={newSocialLink.url} onChange={(e) => setNewSocialLink({...newSocialLink, url: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                    <Input placeholder="Icon (e.g., twitter)" value={newSocialLink.icon} onChange={(e) => setNewSocialLink({...newSocialLink, icon: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                    <Button className="bg-yellow-600 text-white hover:bg-yellow-700" onClick={handleAddSocialLink} disabled={isSubmitting}>
+                                        <Plus className="w-4 h-4 mr-2" /> Add Link
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-800">
+                                            <tr>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Name</th>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">URL</th>
+                                                <th className="p-4 text-right text-sm font-semibold text-gray-300">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {socialLinks.map((link) => (
+                                                <tr key={link.id} className="border-b border-gray-800 last:border-b-0">
+                                                    <td className="p-4 font-medium text-white">{link.name}</td>
+                                                    <td className="p-4 text-gray-400"><a href={link.url} target="_blank" rel="noopener noreferrer" className="hover:text-yellow-500">{link.url}</a></td>
+                                                    <td className="p-4 text-right">
+                                                        <Button variant="ghost" size="sm" className="mr-2 hover:bg-gray-800 text-gray-400 hover:text-white" onClick={() => handleEditSocialLink(link.id)}><Edit className="w-4 h-4" /></Button>
+                                                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-400 hover:bg-gray-800" onClick={() => handleDeleteSocialLink(link.id)}><Trash2 className="w-4 h-4" /></Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
-                    <TabsContent value="testimonials">
-                        {/* Your Testimonials UI */}
+                    <TabsContent value="testimonials" className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-semibold text-white">Testimonials</h2>
+                        </div>
+                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                            <CardHeader>
+                                <CardTitle>Add New Testimonial</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Input placeholder="Name" value={newTestimonial.name} onChange={(e) => setNewTestimonial({...newTestimonial, name: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                    <Input placeholder="Role (e.g., Film Director)" value={newTestimonial.role} onChange={(e) => setNewTestimonial({...newTestimonial, role: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                </div>
+                                <Textarea placeholder="Testimonial content..." value={newTestimonial.content} onChange={(e) => setNewTestimonial({...newTestimonial, content: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-4">
+                                        <div className="flex items-center space-x-2"><Checkbox id="testimonial-published" checked={newTestimonial.published} onCheckedChange={(c) => setNewTestimonial({...newTestimonial, published: Boolean(c)})} /><Label htmlFor="testimonial-published">Published</Label></div>
+                                        <div className="flex items-center space-x-2"><Checkbox id="testimonial-featured" checked={newTestimonial.featured} onCheckedChange={(c) => setNewTestimonial({...newTestimonial, featured: Boolean(c)})} /><Label htmlFor="testimonial-featured">Featured</Label></div>
+                                    </div>
+                                    <Button className="bg-yellow-600 text-white hover:bg-yellow-700" onClick={handleAddTestimonial} disabled={isSubmitting}>
+                                        <Plus className="w-4 h-4 mr-2" /> Add Testimonial
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-800">
+                                            <tr>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Name</th>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Content</th>
+                                                <th className="p-4 text-center text-sm font-semibold text-gray-300">Published</th>
+                                                <th className="p-4 text-right text-sm font-semibold text-gray-300">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {testimonials.map((testimonial) => (
+                                                <tr key={testimonial.id} className="border-b border-gray-800 last:border-b-0">
+                                                    <td className="p-4 font-medium text-white">{testimonial.name}</td>
+                                                    <td className="p-4 text-gray-400 text-sm">{testimonial.content.substring(0, 80)}...</td>
+                                                    <td className="p-4 text-center text-gray-400">{testimonial.published ? '✅' : '❌'}</td>
+                                                    <td className="p-4 text-right">
+                                                        <Button variant="ghost" size="sm" className="mr-2 hover:bg-gray-800 text-gray-400 hover:text-white" onClick={() => handleEditTestimonial(testimonial.id)}><Edit className="w-4 h-4" /></Button>
+                                                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-400 hover:bg-gray-800" onClick={() => handleDeleteTestimonial(testimonial.id)}><Trash2 className="w-4 h-4" /></Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
-                    <TabsContent value="contact">
-                        {/* Your Contact Submissions UI */}
+                    <TabsContent value="contact" className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-semibold text-white">Contact Submissions</h2>
+                        </div>
+                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-800">
+                                            <tr>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Date</th>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Name</th>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Email</th>
+                                                <th className="p-4 text-left text-sm font-semibold text-gray-300">Message</th>
+                                                <th className="p-4 text-right text-sm font-semibold text-gray-300">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {contactSubmissions.map((submission) => (
+                                                <tr key={submission.id} className="border-b border-gray-800 last:border-b-0">
+                                                    <td className="p-4 text-gray-400">{new Date(submission.createdAt).toLocaleDateString()}</td>
+                                                    <td className="p-4 font-medium text-white">{submission.name}</td>
+                                                    <td className="p-4 text-gray-400">{submission.email}</td>
+                                                    <td className="p-4 text-gray-400 text-sm">{submission.message.substring(0, 80)}...</td>
+                                                    <td className="p-4 text-right">
+                                                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-400 hover:bg-gray-800" onClick={() => handleDeleteContactSubmission(submission.id)}><Trash2 className="w-4 h-4" /></Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
-                    <TabsContent value="settings">
-                        {/* Your Settings UI */}
+                    <TabsContent value="settings" className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-semibold text-white">Settings</h2>
+                        </div>
+                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
+                            <CardHeader>
+                                <CardTitle>Change Password</CardTitle>
+                                <CardDescription>Update your admin password here.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="current-password">Current Password</Label>
+                                    <Input id="current-password" type="password" value={passwordForm.currentPassword} onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="new-password">New Password</Label>
+                                    <Input id="new-password" type="password" value={passwordForm.newPassword} onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                                    <Input id="confirm-password" type="password" value={passwordForm.confirmPassword} onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})} className="bg-gray-800 border-gray-700" />
+                                </div>
+                            </CardContent>
+                            <CardFooter className="border-t border-gray-800 px-6 py-4">
+                                <Button className="bg-yellow-600 text-white hover:bg-yellow-700" disabled={isSubmitting}>Save Password</Button>
+                            </CardFooter>
+                        </Card>
                     </TabsContent>
 
                 </Tabs>

@@ -1,13 +1,18 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+// Declare a global variable to hold the Prisma Client instance.
+declare global {
+  var prisma: PrismaClient | undefined;
 }
 
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ['query'],
-  })
+// Initialize Prisma Client.
+// In development, use the global variable to avoid creating new instances on hot reloads.
+// In production, create a new instance.
+const client = globalThis.prisma || new PrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+// If in a development environment, assign the client to the global variable.
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.prisma = client;
+}
+
+export default client;
