@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  content     String?
+  excerpt     String?
+  category    String?
+  tags        String?
+  featured    Boolean  @default(false)
+  published   Boolean  @default(false)
+  views       Int      @default(0)
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// prisma/schema.prisma
+
+model MusicTrack {
+  id             String    @id @default(cuid())
+  title          String
+  category       String?
+  // duration    String? // We are removing this field
+  description    String?   // Added this field for more detail
+  status         String    @default("draft")
+  published      Boolean   @default(false)
+  featured       Boolean   @default(false)
+  audioUrl       String?
+  coverImageUrl  String?   // CHANGE: Added this new field for the cover image
+  fileSize       String?   // Added this field
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Video {
+  id            String    @id @default(cuid())
+  title         String
+  videoId       String?   // For optional YouTube links
+  videoFileUrl  String?   // For your MP4 uploads
+  category      String?
+  description   String?
+  published     Boolean   @default(false)
+  featured      Boolean   @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?
+  content   String
+  avatar    String?
+  published Boolean  @default(false)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  icon      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  phone     String?
+  company   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  year        String?
+  icon        String? // Store emoji or icon class
+  type        String? // e.g., "landing", "about" - for filtering if needed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Collaboration {
+  id          String   @id @default(cuid())
+  name        String
+  role        String?
+  description String?
+  link        String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  label     String
+  value     String
+  icon      String? // Store icon class or name
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
