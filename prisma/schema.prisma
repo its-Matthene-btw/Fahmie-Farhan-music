@@ -8,10 +8,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// prisma/schema.prisma
+
 datasource db {
-  provider = "sqlite"
+  // CHANGE THIS LINE
+  provider = "postgresql" 
   url      = env("DATABASE_URL")
 }
+
+// ... your models remain the same
 
 model User {
   id        String   @id @default(cuid())
