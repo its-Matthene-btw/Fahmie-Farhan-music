@@ -5,12 +5,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Home, Music, BookOpen, User, Mail } from "lucide-react";
+import { Menu, X, Home, Music, User, Mail } from "lucide-react";
 
 const navigation = [
   { name: "Home", href: "/", icon: Home },
   { name: "Music", href: "/music", icon: Music },
-  { name: "Blog", href: "/blog", icon: BookOpen },
   { name: "About", href: "/about", icon: User },
   { name: "Contact", href: "/contact", icon: Mail },
 ];
@@ -20,7 +19,7 @@ export default function Navigation() {
   const pathname = usePathname();
 
   return (
-    <motion.nav 
+    <motion.nav
       className="navbar fixed top-0 left-0 w-full py-4 px-6 shadow-md bg-charcoal-dark/90 backdrop-blur-md -webkit-backdrop-filter: blur(20px) z-50"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -88,9 +87,9 @@ export default function Navigation() {
               <motion.div
                 key={item.name}
                 initial={{ opacity: 0, x: -20 }}
-                animate={{ 
-                  opacity: isOpen ? 1 : 0, 
-                  x: isOpen ? 0 : -20 
+                animate={{
+                  opacity: isOpen ? 1 : 0,
+                  x: isOpen ? 0 : -20
                 }}
                 transition={{ delay: isOpen ? index * 0.1 : 0 }}
               >

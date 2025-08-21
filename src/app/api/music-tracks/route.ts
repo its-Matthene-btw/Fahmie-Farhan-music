@@ -3,9 +3,13 @@ import prisma from '@/lib/db';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 
-export async function GET() {
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const publishedOnly = searchParams.get('published') === 'true';
+
     try {
         const musicTracks = await prisma.musicTrack.findMany({
+            where: publishedOnly ? { published: true } : {},
             orderBy: { createdAt: 'desc' },
         });
         return NextResponse.json(musicTracks);

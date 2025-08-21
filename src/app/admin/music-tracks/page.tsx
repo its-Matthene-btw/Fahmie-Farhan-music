@@ -29,8 +29,7 @@ export default function AdminMusicTracksPage() {
 
   const fetchMusicTracks = async () => {
     try {
-      // CHANGE: Fetch all tracks for the admin view
-      const response = await fetch('/api/music-tracks?published=all');
+      const response = await fetch('/api/music-tracks');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
