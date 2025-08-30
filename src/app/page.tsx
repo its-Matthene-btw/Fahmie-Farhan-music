@@ -30,7 +30,6 @@ import {
     Linkedin,
     Github,
     Twitch,
-    Discord,
     Link as LinkIcon,
     Music2 as SoundcloudIcon
 } from "lucide-react";
@@ -84,7 +83,6 @@ const iconComponents: { [key: string]: React.FC<any> } = {
     Linkedin,
     Github,
     Twitch,
-    Discord,
     Soundcloud: SoundcloudIcon,
     Default: LinkIcon,
 };

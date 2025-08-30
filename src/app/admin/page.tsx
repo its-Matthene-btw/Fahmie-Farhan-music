@@ -37,7 +37,6 @@ import {
     Linkedin,
     Github,
     Twitch,
-    Discord,
     Music2 as SoundcloudIcon
 } from "lucide-react";
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle, Edit, Trash2, Youtube, Instagram, Music, ExternalLink, Spotify } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Youtube, Instagram, Music, ExternalLink } from "lucide-react";   
 
 interface SocialLink {
   id: string;
@@ -59,7 +59,7 @@ export default function AdminSocialLinksPage() {
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
       case 'Youtube': return <Youtube className="w-5 h-5" />;
-      case 'Spotify': return <Spotify className="w-5 h-5" />;
+      case 'Spotify': return <ExternalLink className="w-5 h-5" />; // Use a generic icon for Spotify
       case 'Instagram': return <Instagram className="w-5 h-5" />;
       default: return null;
     }

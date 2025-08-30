@@ -92,8 +92,8 @@ export default function LoginPage() {
     }
   }, []);
 
-  // Animation variants
-  const fadeInUp = {
+  // Animation variants (typed any to avoid strict motion typings)
+  const fadeInUp: any = {
     hidden: { opacity: 0, y: 60 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
   };

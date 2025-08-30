@@ -1,7 +1,7 @@
 'use client'
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { Music, Mail, Youtube, Instagram, Twitter, Facebook, Linkedin, Github, Twitch, Discord, Link as LinkIcon, LucideProps, Music2 as SoundcloudIcon } from "lucide-react";
+import { Music, Mail, Youtube, Instagram, Twitter, Facebook, Linkedin, Github, Twitch, Link as LinkIcon, LucideProps, Music2 as SoundcloudIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 // Define a type for the social link data
@@ -21,7 +21,7 @@ const iconComponents: { [key: string]: React.FC<LucideProps> } = {
   Linkedin,
   Github,
   Twitch,
-  Discord,
+  // Discord icon is not available in lucide-react, fallback to Default
   Soundcloud: SoundcloudIcon,
   Default: LinkIcon
 };

@@ -253,7 +253,14 @@ export default function PortfolioPage() {
   // Build category list dynamically from fetched videos (preserve original casing)
   const categoryList = [
     'All',
-    ...Array.from(new Set(videos.map(v => v.category?.trim()).filter(Boolean)))
+    ...Array.from(
+      new Set(
+        videos
+          .map(v => v.category)
+          .filter((c): c is string => typeof c === 'string' && c.trim() !== '')
+          .map(c => c.trim())
+      )
+    )
   ];
 
   return (
