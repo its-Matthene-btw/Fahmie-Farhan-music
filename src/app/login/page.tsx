@@ -206,11 +206,7 @@ export default function LoginPage() {
                 </motion.div>
               </form>
 
-              <div className="mt-6 text-center">
-                <p className="text-sm text-text-muted">
-                  Use admin credentials: admin@fahmiefarhan.com / Zxcvbnm@123
-                </p>
-              </div>
+              {/* credentials hint removed */}
             </CardContent>
           </Card>
         </motion.div>
