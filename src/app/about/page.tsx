@@ -28,7 +28,7 @@ const collaborations = [
     name: "GEMAWAN KISAS",
     role: "Cultural Ensemble",
     description: "Gema Gamelan Waqafan (GEMAWAN) from Kolej Islam Sultan Alam Shah (KISAS). Collaboration includes training the ensemble and composing original modern gamelan pieces.",
-    link: "#",
+    link: "http://www.youtube.com/@gemawankisas4271",
     image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=400&fit=crop"
   }
 ];

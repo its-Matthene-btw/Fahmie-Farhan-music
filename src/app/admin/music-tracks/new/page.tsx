@@ -15,7 +15,7 @@ export default function NewMusicTrackPage() {
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [audioUrl, setAudioUrl] = useState('');
+  // const [audioUrl, setAudioUrl] = useState(''); // Removed
   const [fileSize, setFileSize] = useState('');
   const [published, setPublished] = useState(false);
   const [featured, setFeatured] = useState(false);
@@ -32,7 +32,7 @@ export default function NewMusicTrackPage() {
     if (audioFile) {
       formData.append('audioFile', audioFile);
     }
-    formData.append('audioUrl', audioUrl);
+    // formData.append('audioUrl', audioUrl); // Removed
     formData.append('fileSize', fileSize);
     formData.append('published', published.toString());
     formData.append('featured', featured.toString());
@@ -88,10 +88,7 @@ export default function NewMusicTrackPage() {
                 onChange={(e) => setAudioFile(e.target.files ? e.target.files[0] : null)}
               />
             </div>
-            <div>
-              <Label htmlFor="audioUrl">Audio URL (Optional, if not uploading file)</Label>
-              <Input id="audioUrl" value={audioUrl} onChange={(e) => setAudioUrl(e.target.value)} />
-            </div>
+            {/* Removed Audio URL section */}
             <div>
               <Label htmlFor="fileSize">File Size (e.g., 4.2 MB)</Label>
               <Input id="fileSize" value={fileSize} onChange={(e) => setFileSize(e.target.value)} />

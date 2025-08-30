@@ -29,7 +29,16 @@ import {
     Save,
     Mail,
     Download,
-    Filter
+    Filter,
+    Youtube,
+    Instagram,
+    Twitter,
+    Facebook,
+    Linkedin,
+    Github,
+    Twitch,
+    Discord,
+    Music2 as SoundcloudIcon
 } from "lucide-react";
 
 // +------------------+
@@ -42,29 +51,48 @@ const MusicTrackForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) 
     const [description, setDescription] = useState('');
     const [audioFile, setAudioFile] = useState<File | null>(null);
     const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
-    const [fileSize, setFileSize] = useState('');
     const [published, setPublished] = useState(false);
     const [featured, setFeatured] = useState(false);
+    const [youtubeUrl, setYoutubeUrl] = useState('');
 
     useEffect(() => {
         if (initialData) {
             setTitle(initialData.title || '');
             setCategory(initialData.category || '');
             setDescription(initialData.description || '');
-            setFileSize(initialData.fileSize || '');
             setPublished(initialData.published || false);
             setFeatured(initialData.featured || false);
         } else {
             setTitle('');
             setCategory('');
             setDescription('');
-            setFileSize('');
             setPublished(false);
             setFeatured(false);
         }
         setAudioFile(null);
         setCoverImageFile(null);
     }, [initialData]);
+
+    const handleYouTubeUrlPaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
+        const pastedUrl = e.clipboardData.getData('text');
+        setYoutubeUrl(pastedUrl);
+        if (!pastedUrl) {
+            return;
+        }
+        try {
+            const response = await fetch(`/api/youtube-info?url=${encodeURIComponent(pastedUrl)}`);
+            if (response.ok) {
+                const data = await response.json();
+                setTitle(data.title);
+                setDescription(data.description);
+            } else {
+                alert('Failed to fetch video information.');
+            }
+        } catch (error) {
+            console.error('Error fetching YouTube video information:', error);
+            alert('Failed to fetch video information.');
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -74,7 +102,6 @@ const MusicTrackForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) 
         formData.append('description', description);
         if (audioFile) formData.append('audioFile', audioFile);
         if (coverImageFile) formData.append('coverImageFile', coverImageFile);
-        formData.append('fileSize', fileSize);
         formData.append('published', String(published));
         formData.append('featured', String(featured));
         onSubmit(formData);
@@ -82,12 +109,16 @@ const MusicTrackForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) 
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto p-1">
+            <div>
+                <Label htmlFor="youtubeUrl">YouTube Music URL</Label>
+                <Input id="youtubeUrl" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} onPaste={handleYouTubeUrlPaste} />
+            </div>
             <div><Label htmlFor="title">Title</Label><Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required /></div>
             <div><Label htmlFor="category">Category</Label><Input id="category" value={category} onChange={(e) => setCategory(e.target.value)} /></div>
             <div><Label htmlFor="description">Description</Label><Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} /></div>
             <div>
                 <Label htmlFor="coverImageFile">Cover Image (Leave blank to keep current)</Label>
-                {initialData?.coverImageUrl && <img src={initialData.coverImageUrl} alt="Current" className="w-20 h-20 my-2 rounded-md object-cover"/>}
+                {initialData?.coverImageUrl && <img src={initialData.coverImageUrl} alt="Current" className="w-20 h-20 my-2 rounded-md object-cover" loading="eager"/>}
                 <Input id="coverImageFile" type="file" accept="image/*" onChange={(e) => setCoverImageFile(e.target.files ? e.target.files[0] : null)} />
             </div>
             <div>
@@ -95,7 +126,6 @@ const MusicTrackForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) 
                 {initialData?.audioUrl && <audio controls src={initialData.audioUrl} className="w-full my-2 h-10" />}
                 <Input id="audioFile" type="file" accept="audio/*" onChange={(e) => setAudioFile(e.target.files ? e.target.files[0] : null)} />
             </div>
-            <div><Label htmlFor="fileSize">File Size (e.g., 4.2 MB)</Label><Input id="fileSize" value={fileSize} onChange={(e) => setFileSize(e.target.value)} /></div>
             <div className="flex items-center space-x-2"><Checkbox id="published" checked={published} onCheckedChange={(c) => setPublished(Boolean(c))} /><Label htmlFor="published">Published</Label></div>
             <div className="flex items-center space-x-2"><Checkbox id="featured" checked={featured} onCheckedChange={(c) => setFeatured(Boolean(c))} /><Label htmlFor="featured">Featured</Label></div>
             <div className="flex justify-end space-x-2 pt-4"><Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button><Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save'}</Button></div>
@@ -111,6 +141,7 @@ const VideoForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [published, setPublished] = useState(false);
     const [featured, setFeatured] = useState(false);
+    const [youtubeUrl, setYoutubeUrl] = useState('');
 
     useEffect(() => {
         if (initialData) {
@@ -131,6 +162,28 @@ const VideoForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
         setVideoFile(null);
     }, [initialData]);
 
+    const handleYouTubeUrlPaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
+        const pastedUrl = e.clipboardData.getData('text');
+        setYoutubeUrl(pastedUrl);
+        if (!pastedUrl) {
+            return;
+        }
+        try {
+            const response = await fetch(`/api/youtube-info?url=${encodeURIComponent(pastedUrl)}`);
+            if (response.ok) {
+                const data = await response.json();
+                setTitle(data.title);
+                setDescription(data.description);
+                setVideoId(data.videoId);
+            } else {
+                alert('Failed to fetch video information.');
+            }
+        } catch (error) {
+            console.error('Error fetching YouTube video information:', error);
+            alert('Failed to fetch video information.');
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData();
@@ -146,6 +199,10 @@ const VideoForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+                <Label htmlFor="youtubeUrl">YouTube URL</Label>
+                <Input id="youtubeUrl" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} onPaste={handleYouTubeUrlPaste} />
+            </div>
             <div><Label htmlFor="title">Title</Label><Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required /></div>
             <div><Label htmlFor="videoId">YouTube Video ID (Optional)</Label><Input id="videoId" value={videoId} onChange={(e) => setVideoId(e.target.value)} /></div>
             <div><Label htmlFor="category">Category</Label><Input id="category" value={category} onChange={(e) => setCategory(e.target.value)} /></div>
@@ -158,6 +215,113 @@ const VideoForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
             <div className="flex items-center space-x-2"><Checkbox id="published" checked={published} onCheckedChange={(c) => setPublished(Boolean(c))} /><Label htmlFor="published">Published</Label></div>
             <div className="flex items-center space-x-2"><Checkbox id="featured" checked={featured} onCheckedChange={(c) => setFeatured(Boolean(c))} /><Label htmlFor="featured">Featured</Label></div>
             <div className="flex justify-end space-x-2 pt-4"><Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button><Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save'}</Button></div>
+        </form>
+    );
+};
+
+const SocialLinkForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
+    const [name, setName] = useState('');
+    const [url, setUrl] = useState('');
+    const [icon, setIcon] = useState('');
+    const [customIcon, setCustomIcon] = useState('');
+
+    useEffect(() => {
+        if (initialData) {
+            setName(initialData.name || '');
+            setUrl(initialData.url || '');
+            setIcon(initialData.icon || '');
+        } else {
+            setName('');
+            setUrl('');
+            setIcon('');
+        }
+    }, [initialData]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const finalIcon = icon === 'Other...' ? customIcon : icon;
+        onSubmit({ name, url, icon: finalIcon });
+    };
+
+    const iconOptions = ['Youtube', 'Instagram', 'Twitter', 'Facebook', 'Linkedin', 'Github', 'Twitch', 'Discord', 'Spotify', 'Soundcloud', 'Other...'];
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div><Label htmlFor="name">Name</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} required /></div>
+            <div><Label htmlFor="url">URL</Label><Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} required /></div>
+            <div>
+                <Label htmlFor="icon">Icon</Label>
+                <select id="icon" value={icon} onChange={(e) => setIcon(e.target.value)} className="w-full p-2 border rounded bg-gray-800 border-gray-700 text-white">
+                    {iconOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+            </div>
+            {icon === 'Other...' && (
+                <div>
+                    <Label htmlFor="customIcon">Custom Icon Name</Label>
+                    <Input id="customIcon" value={customIcon} onChange={(e) => setCustomIcon(e.target.value)} />
+                </div>
+            )}
+            <div className="flex justify-end space-x-2 pt-4">
+                <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+                <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save'}</Button>
+            </div>
+        </form>
+    );
+};
+
+const TestimonialForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
+    const [name, setName] = useState('');
+    const [role, setRole] = useState('');
+    const [content, setContent] = useState('');
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [published, setPublished] = useState(false);
+    const [featured, setFeatured] = useState(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setName(initialData.name || '');
+            setRole(initialData.role || '');
+            setContent(initialData.content || '');
+            setPublished(initialData.published || false);
+            setFeatured(initialData.featured || false);
+        } else {
+            setName('');
+            setRole('');
+            setContent('');
+            setPublished(false);
+            setFeatured(false);
+        }
+        setAvatarFile(null);
+    }, [initialData]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('role', role);
+        formData.append('content', content);
+        if (avatarFile) formData.append('avatarFile', avatarFile);
+        formData.append('published', String(published));
+        formData.append('featured', String(featured));
+        onSubmit(formData);
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div><Label htmlFor="name">Name</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} required /></div>
+            <div><Label htmlFor="role">Role</Label><Input id="role" value={role} onChange={(e) => setRole(e.target.value)} /></div>
+            <div><Label htmlFor="content">Content</Label><Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} required /></div>
+            <div>
+                <Label htmlFor="avatarFile">Avatar Image</Label>
+                {initialData?.avatar && <img src={initialData.avatar} alt="Current" className="w-20 h-20 my-2 rounded-full object-cover" loading="eager"/>}
+                <Input id="avatarFile" type="file" accept="image/*" onChange={(e) => setAvatarFile(e.target.files ? e.target.files[0] : null)} />
+            </div>
+            <div className="flex items-center space-x-2"><Checkbox id="published" checked={published} onCheckedChange={(c) => setPublished(Boolean(c))} /><Label htmlFor="published">Published</Label></div>
+            <div className="flex items-center space-x-2"><Checkbox id="featured" checked={featured} onCheckedChange={(c) => setFeatured(Boolean(c))} /><Label htmlFor="featured">Featured</Label></div>
+            <div className="flex justify-end space-x-2 pt-4">
+                <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+                <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save'}</Button>
+            </div>
         </form>
     );
 };
@@ -176,12 +340,14 @@ export default function AdminPage() {
     const [editingMusicTrack, setEditingMusicTrack] = useState<any | null>(null);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
     const [editingVideo, setEditingVideo] = useState<any | null>(null);
+    const [isSocialLinkModalOpen, setIsSocialLinkModalOpen] = useState(false);
+    const [editingSocialLink, setEditingSocialLink] = useState<any | null>(null);
+    const [isTestimonialModalOpen, setIsTestimonialModalOpen] = useState(false);
+    const [editingTestimonial, setEditingTestimonial] = useState<any | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // --- States for data and other tabs ---
     const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    const [newSocialLink, setNewSocialLink] = useState({ name: '', url: '', icon: '' });
-    const [newTestimonial, setNewTestimonial] = useState({ name: '', role: '', content: '', avatar: '', published: false, featured: false });
     const [musicTracks, setMusicTracks] = useState<any[]>([]);
     const [youtubeVideos, setYoutubeVideos] = useState<any[]>([]);
     const [blogPosts, setBlogPosts] = useState<any[]>([]);
@@ -189,7 +355,6 @@ export default function AdminPage() {
     const [testimonials, setTestimonials] = useState<any[]>([]);
     const [contactSubmissions, setContactSubmissions] = useState<any[]>([]);
     const [contactFilters, setContactFilters] = useState({ startDate: '', endDate: '', name: '', email: '' });
-
     // --- Data fetching ---
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -320,62 +485,29 @@ export default function AdminPage() {
     };
 
     // --- Social Link Handlers ---
-    const handleAddSocialLink = async () => {
-        if (newSocialLink.name && newSocialLink.url) {
-            setIsSubmitting(true);
-            try {
-                const response = await fetch('/api/social-links', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newSocialLink),
-                });
-                if (!response.ok) throw new Error('Failed to add social link');
-                alert("Social link added successfully!");
-                setNewSocialLink({ name: '', url: '', icon: '' });
-                await fetchData();
-            } catch (error) {
-                console.error(error);
-                alert("Failed to add social link.");
-            } finally {
-                setIsSubmitting(false);
-            }
-        } else {
-            alert('Please fill in name and URL fields');
-        }
-    };
-    const handleEditSocialLink = async (id: string) => {
-        const linkToEdit = socialLinks.find(l => l.id === id);
-        if (!linkToEdit) return;
-
-        const updatedName = prompt('Enter new name:', linkToEdit.name);
-        if (updatedName === null) return;
-
-        const updatedUrl = prompt('Enter new URL:', linkToEdit.url);
-        if (updatedUrl === null) return;
-
-        const updatedIcon = prompt('Enter new icon:', linkToEdit.icon || '');
-
+    const handleSocialLinkFormSubmit = async (data: any) => {
         setIsSubmitting(true);
+        const method = editingSocialLink ? 'PUT' : 'POST';
+        const url = editingSocialLink ? `/api/social-links/${editingSocialLink.id}` : '/api/social-links';
         try {
-            const response = await fetch(`/api/social-links/${id}`, {
-                method: 'PUT',
+            const response = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: updatedName,
-                    url: updatedUrl,
-                    icon: updatedIcon,
-                }),
+                body: JSON.stringify(data),
             });
-            if (!response.ok) throw new Error('Failed to update social link');
-            alert("Social link updated successfully!");
+            if (!response.ok) throw new Error('Failed to save social link');
+            alert("Social link saved successfully!");
+            setIsSocialLinkModalOpen(false);
+            setEditingSocialLink(null);
             await fetchData();
         } catch (error) {
             console.error(error);
-            alert("Failed to update social link.");
+            alert("Failed to save social link.");
         } finally {
             setIsSubmitting(false);
         }
     };
+
     const handleDeleteSocialLink = async (id: string) => {
         if (confirm('Are you sure you want to delete this social link?')) {
             try {
@@ -390,66 +522,25 @@ export default function AdminPage() {
     };
 
     // --- Testimonial Handlers ---
-    const handleAddTestimonial = async () => {
-        if (newTestimonial.name && newTestimonial.content) {
-            setIsSubmitting(true);
-            try {
-                const response = await fetch('/api/testimonials', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newTestimonial),
-                });
-                if (!response.ok) throw new Error('Failed to add testimonial');
-                alert("Testimonial added successfully!");
-                setNewTestimonial({ name: '', role: '', content: '', avatar: '', published: false, featured: false });
-                await fetchData();
-            } catch (error) {
-                console.error(error);
-                alert("Failed to add testimonial.");
-            } finally {
-                setIsSubmitting(false);
-            }
-        } else {
-            alert('Please fill in name and content fields');
-        }
-    };
-    const handleEditTestimonial = async (id: string) => {
-        const testimonialToEdit = testimonials.find(t => t.id === id);
-        if (!testimonialToEdit) return;
-
-        const updatedName = prompt('Enter new name:', testimonialToEdit.name);
-        if (updatedName === null) return;
-
-        const updatedRole = prompt('Enter new role:', testimonialToEdit.role || '');
-        const updatedContent = prompt('Enter new content:', testimonialToEdit.content);
-        const updatedAvatar = prompt('Enter new avatar URL:', testimonialToEdit.avatar || '');
-        const updatedPublished = confirm('Is published?');
-        const updatedFeatured = confirm('Is featured?');
-
+    const handleTestimonialFormSubmit = async (formData: FormData) => {
         setIsSubmitting(true);
+        const method = editingTestimonial ? 'PUT' : 'POST';
+        const url = editingTestimonial ? `/api/testimonials/${editingTestimonial.id}` : '/api/testimonials';
         try {
-            const response = await fetch(`/api/testimonials/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: updatedName,
-                    role: updatedRole,
-                    content: updatedContent,
-                    avatar: updatedAvatar,
-                    published: updatedPublished,
-                    featured: updatedFeatured,
-                }),
-            });
-            if (!response.ok) throw new Error('Failed to update testimonial');
-            alert("Testimonial updated successfully!");
+            const response = await fetch(url, { method, body: formData });
+            if (!response.ok) throw new Error('Failed to save testimonial');
+            alert("Testimonial saved successfully!");
+            setIsTestimonialModalOpen(false);
+            setEditingTestimonial(null);
             await fetchData();
         } catch (error) {
             console.error(error);
-            alert("Failed to update testimonial.");
+            alert("Failed to save testimonial.");
         } finally {
             setIsSubmitting(false);
         }
     };
+
     const handleDeleteTestimonial = async (id: string) => {
         if (confirm('Are you sure you want to delete this testimonial?')) {
             try {
@@ -476,6 +567,8 @@ export default function AdminPage() {
             }
         }
     };
+
+    
 
     // ... handleExportContacts and handleFilterContacts can be added back if needed
 
@@ -543,6 +636,7 @@ export default function AdminPage() {
                         <TabsTrigger value="social" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-300"> <Users className="w-4 h-4 mr-2" /> Social </TabsTrigger>
                         <TabsTrigger value="testimonials" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-300"> <MessageSquare className="w-4 h-4 mr-2" /> Testimonials </TabsTrigger>
                         <TabsTrigger value="contact" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-300"> <Mail className="w-4 h-4 mr-2" /> Contact </TabsTrigger>
+                        
                         <TabsTrigger value="settings" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white data-[state=active]:shadow-sm text-gray-300"> <Settings className="w-4 h-4 mr-2" /> Settings </TabsTrigger>
                     </TabsList>
                     
@@ -693,22 +787,10 @@ export default function AdminPage() {
                     <TabsContent value="social" className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-2xl font-semibold text-white">Social Links</h2>
+                            <Button className="bg-yellow-600 text-white hover:bg-yellow-700" onClick={() => { setEditingSocialLink(null); setIsSocialLinkModalOpen(true); }}>
+                                <Plus className="w-4 h-4 mr-2" /> Add Social Link
+                            </Button>
                         </div>
-                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
-                            <CardHeader>
-                                <CardTitle>Add New Social Link</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex space-x-4">
-                                    <Input placeholder="Name (e.g., Twitter)" value={newSocialLink.name} onChange={(e) => setNewSocialLink({...newSocialLink, name: e.target.value})} className="bg-gray-800 border-gray-700" />
-                                    <Input placeholder="URL" value={newSocialLink.url} onChange={(e) => setNewSocialLink({...newSocialLink, url: e.target.value})} className="bg-gray-800 border-gray-700" />
-                                    <Input placeholder="Icon (e.g., twitter)" value={newSocialLink.icon} onChange={(e) => setNewSocialLink({...newSocialLink, icon: e.target.value})} className="bg-gray-800 border-gray-700" />
-                                    <Button className="bg-yellow-600 text-white hover:bg-yellow-700" onClick={handleAddSocialLink} disabled={isSubmitting}>
-                                        <Plus className="w-4 h-4 mr-2" /> Add Link
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
                         <Card className="bg-gray-900 border-gray-800 shadow-sm">
                             <CardContent className="p-0">
                                 <div className="overflow-x-auto">
@@ -726,7 +808,7 @@ export default function AdminPage() {
                                                     <td className="p-4 font-medium text-white">{link.name}</td>
                                                     <td className="p-4 text-gray-400"><a href={link.url} target="_blank" rel="noopener noreferrer" className="hover:text-yellow-500">{link.url}</a></td>
                                                     <td className="p-4 text-right">
-                                                        <Button variant="ghost" size="sm" className="mr-2 hover:bg-gray-800 text-gray-400 hover:text-white" onClick={() => handleEditSocialLink(link.id)}><Edit className="w-4 h-4" /></Button>
+                                                        <Button variant="ghost" size="sm" className="mr-2 hover:bg-gray-800 text-gray-400 hover:text-white" onClick={() => { setEditingSocialLink(link); setIsSocialLinkModalOpen(true); }}><Edit className="w-4 h-4" /></Button>
                                                         <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-400 hover:bg-gray-800" onClick={() => handleDeleteSocialLink(link.id)}><Trash2 className="w-4 h-4" /></Button>
                                                     </td>
                                                 </tr>
@@ -740,28 +822,10 @@ export default function AdminPage() {
                     <TabsContent value="testimonials" className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-2xl font-semibold text-white">Testimonials</h2>
+                            <Button className="bg-yellow-600 text-white hover:bg-yellow-700" onClick={() => { setEditingTestimonial(null); setIsTestimonialModalOpen(true); }}>
+                                <Plus className="w-4 h-4 mr-2" /> Add Testimonial
+                            </Button>
                         </div>
-                        <Card className="bg-gray-900 border-gray-800 shadow-sm">
-                            <CardHeader>
-                                <CardTitle>Add New Testimonial</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <Input placeholder="Name" value={newTestimonial.name} onChange={(e) => setNewTestimonial({...newTestimonial, name: e.target.value})} className="bg-gray-800 border-gray-700" />
-                                    <Input placeholder="Role (e.g., Film Director)" value={newTestimonial.role} onChange={(e) => setNewTestimonial({...newTestimonial, role: e.target.value})} className="bg-gray-800 border-gray-700" />
-                                </div>
-                                <Textarea placeholder="Testimonial content..." value={newTestimonial.content} onChange={(e) => setNewTestimonial({...newTestimonial, content: e.target.value})} className="bg-gray-800 border-gray-700" />
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="flex items-center space-x-2"><Checkbox id="testimonial-published" checked={newTestimonial.published} onCheckedChange={(c) => setNewTestimonial({...newTestimonial, published: Boolean(c)})} /><Label htmlFor="testimonial-published">Published</Label></div>
-                                        <div className="flex items-center space-x-2"><Checkbox id="testimonial-featured" checked={newTestimonial.featured} onCheckedChange={(c) => setNewTestimonial({...newTestimonial, featured: Boolean(c)})} /><Label htmlFor="testimonial-featured">Featured</Label></div>
-                                    </div>
-                                    <Button className="bg-yellow-600 text-white hover:bg-yellow-700" onClick={handleAddTestimonial} disabled={isSubmitting}>
-                                        <Plus className="w-4 h-4 mr-2" /> Add Testimonial
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
                         <Card className="bg-gray-900 border-gray-800 shadow-sm">
                             <CardContent className="p-0">
                                 <div className="overflow-x-auto">
@@ -781,7 +845,7 @@ export default function AdminPage() {
                                                     <td className="p-4 text-gray-400 text-sm">{testimonial.content.substring(0, 80)}...</td>
                                                     <td className="p-4 text-center text-gray-400">{testimonial.published ? '✅' : '❌'}</td>
                                                     <td className="p-4 text-right">
-                                                        <Button variant="ghost" size="sm" className="mr-2 hover:bg-gray-800 text-gray-400 hover:text-white" onClick={() => handleEditTestimonial(testimonial.id)}><Edit className="w-4 h-4" /></Button>
+                                                        <Button variant="ghost" size="sm" className="mr-2 hover:bg-gray-800 text-gray-400 hover:text-white" onClick={() => { setEditingTestimonial(testimonial); setIsTestimonialModalOpen(true); }}><Edit className="w-4 h-4" /></Button>
                                                         <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-400 hover:bg-gray-800" onClick={() => handleDeleteTestimonial(testimonial.id)}><Trash2 className="w-4 h-4" /></Button>
                                                     </td>
                                                 </tr>
@@ -827,6 +891,7 @@ export default function AdminPage() {
                             </CardContent>
                         </Card>
                     </TabsContent>
+                    
                     <TabsContent value="settings" className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-2xl font-semibold text-white">Settings</h2>
@@ -869,6 +934,18 @@ export default function AdminPage() {
                 <DialogContent className="bg-gray-900 border-gray-800 text-white">
                     <DialogHeader><DialogTitle>{editingVideo ? 'Edit Video' : 'Add New Video'}</DialogTitle></DialogHeader>
                     <VideoForm initialData={editingVideo} onSubmit={handleVideoFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsVideoModalOpen(false)} />
+                </DialogContent>
+            </Dialog>
+            <Dialog open={isSocialLinkModalOpen} onOpenChange={setIsSocialLinkModalOpen}>
+                <DialogContent className="bg-gray-900 border-gray-800 text-white">
+                    <DialogHeader><DialogTitle>{editingSocialLink ? 'Edit Social Link' : 'Add New Social Link'}</DialogTitle></DialogHeader>
+                    <SocialLinkForm initialData={editingSocialLink} onSubmit={handleSocialLinkFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsSocialLinkModalOpen(false)} />
+                </DialogContent>
+            </Dialog>
+            <Dialog open={isTestimonialModalOpen} onOpenChange={setIsTestimonialModalOpen}>
+                <DialogContent className="bg-gray-900 border-gray-800 text-white">
+                    <DialogHeader><DialogTitle>{editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}</DialogTitle></DialogHeader>
+                    <TestimonialForm initialData={editingTestimonial} onSubmit={handleTestimonialFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsTestimonialModalOpen(false)} />
                 </DialogContent>
             </Dialog>
         </div>

@@ -25,6 +25,14 @@ import {
     Award,
     Star,
     Headphones,
+    Twitter,
+    Facebook,
+    Linkedin,
+    Github,
+    Twitch,
+    Discord,
+    Link as LinkIcon,
+    Music2 as SoundcloudIcon
 } from "lucide-react";
 
 // Interfaces for data types
@@ -71,15 +79,17 @@ const iconComponents: { [key: string]: React.FC<any> } = {
     Headphones,
     Youtube,
     Instagram,
+    Twitter,
+    Facebook,
+    Linkedin,
+    Github,
+    Twitch,
+    Discord,
+    Soundcloud: SoundcloudIcon,
+    Default: LinkIcon,
 };
 
-// Hardcoded stats data based on the provided image
-const statsData = [
-    { value: "150+", label: "Compositions", icon: Music },
-    { value: "200+", label: "Happy Clients", icon: User },
-    { value: "10+", label: "Years Experience", icon: Award },
-    { value: "5M+", label: "Global Plays", icon: Headphones },
-];
+
 
 export default function Home() {
     const orbsRef = useRef<HTMLDivElement>(null);
@@ -100,6 +110,7 @@ export default function Home() {
     // UI State
     const [hoveredMusicCard, setHoveredMusicCard] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('all');
+    const [categories, setCategories] = useState<string[]>(['all']);
 
     // Audio Player State
     const [featuredMusicTrack, setFeaturedMusicTrack] = useState<MusicTrack | null>(null);
@@ -140,6 +151,8 @@ export default function Home() {
                         const randomIndex = Math.floor(Math.random() * musicTracksData.length);
                         setFeaturedMusicTrack(musicTracksData[randomIndex]);
                     }
+                    const uniqueCategories = ['all', ...new Set(musicTracksData.map(track => track.category).filter(Boolean) as string[])];
+                    setCategories(uniqueCategories);
                 }
 
             } catch (error) {
@@ -331,7 +344,7 @@ export default function Home() {
                         transition={{ duration: 0.8, delay: 0.8 }}
                     >
                         {socialLinks.map((social, index) => {
-                           const Icon = iconComponents[social.icon];
+                           const Icon = iconComponents[social.icon] || iconComponents.Default;
                            if (!Icon) return null;
                            return (
                                 <motion.a
@@ -376,27 +389,7 @@ export default function Home() {
                         </div>
                     </motion.div>
 
-                    {/* UPDATED STATS SECTION */}
-<motion.div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-4xl mx-auto"
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.8, delay: 1.4 }}
->
-    {statsData.map((stat, index) => (
-        <motion.div
-            key={stat.label}
-            className="text-center p-4 bg-charcoal-dark/50 rounded-lg backdrop-blur-sm"
-            whileHover={{ scale: 1.05 }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.6 + index * 0.1 }}
-        >
-            <stat.icon className="w-8 h-8 text-fantasy-gold mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{stat.value}</div>
-            <div className="text-sm text-text-muted">{stat.label}</div>
-        </motion.div>
-    ))}
-</motion.div>
+                    
                 </div>
             </section>
             
@@ -498,7 +491,7 @@ export default function Home() {
                     </div>
 
                     <div className="flex flex-wrap justify-center gap-4 mb-12">
-                        {['all', 'Orchestral', 'Gamelan', 'Cinematic', 'Ambient'].map((tab) => (
+                        {categories.map((tab) => (
                             <Button
                                 key={tab}
                                 variant={activeTab === tab ? "default" : "outline"}
@@ -530,7 +523,8 @@ export default function Home() {
                                     <div className="relative">
                                         <img src={track.coverImageUrl || `https://via.placeholder.com/400x400`} 
                                             alt={track.title} 
-                                            className="w-full h-48 object-cover" />
+                                            className="w-full h-48 object-cover"
+                                            loading="eager" />
                                         <div className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity ${
                                             hoveredMusicCard === track.id ? 'opacity-100' : 'opacity-0'
                                         }`}>

@@ -1,15 +1,50 @@
+'use client'
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
-import { Music, Mail, ExternalLink, Youtube, Instagram } from "lucide-react";
+import { Music, Mail, Youtube, Instagram, Twitter, Facebook, Linkedin, Github, Twitch, Discord, Link as LinkIcon, LucideProps, Music2 as SoundcloudIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+
+// Define a type for the social link data
+interface SocialLink {
+  id: string;
+  name: string;
+  url: string;
+  icon: string;
+}
+
+// Map icon names to Lucide components
+const iconComponents: { [key: string]: React.FC<LucideProps> } = {
+  Youtube,
+  Instagram,
+  Twitter,
+  Facebook,
+  Linkedin,
+  Github,
+  Twitch,
+  Discord,
+  Soundcloud: SoundcloudIcon,
+  Default: LinkIcon
+};
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
 
-  const socialLinks = [
-    { name: "YouTube", href: "https://www.youtube.com/@FahmieFarhanMusic", icon: Youtube },
-    { name: "SoundCloud", href: "https://soundcloud.com/fahmiefarhanmusic", icon: Music },
-    { name: "Instagram", href: "https://www.instagram.com/fahmiefarhanmusic/", icon: Instagram },
-  ];
+  useEffect(() => {
+    const fetchSocialLinks = async () => {
+      try {
+        const response = await fetch("/api/social-links");
+        if (response.ok) {
+          const data = await response.json();
+          setSocialLinks(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch social links:", error);
+      }
+    };
+
+    fetchSocialLinks();
+  }, []);
 
   return (
     <footer className="bg-charcoal-dark border-t border-fantasy-gold/20 mt-20">
@@ -23,11 +58,11 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => {
-                const Icon = social.icon;
+                const Icon = iconComponents[social.icon] || iconComponents.Default;
                 return (
                   <a
-                    key={social.name}
-                    href={social.href}
+                    key={social.id}
+                    href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-10 h-10 bg-deep-black rounded-full flex items-center justify-center text-fantasy-gold hover:bg-fantasy-gold hover:text-deep-black transition-colors"
@@ -55,7 +90,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/blog" className="text-text-muted hover:text-fantasy-gold transition-colors">
-                  blog
+                  Blog (coming soon)
                 </Link>
               </li>
               <li>
@@ -79,16 +114,13 @@ export default function Footer() {
                 <span className="text-text-muted">Custom Compositions</span>
               </li>
               <li>
-                <span className="text-text-muted">Music Licensing</span>
-              </li>
-              <li>
                 <span className="text-text-muted">Orchestral Arrangements</span>
               </li>
               <li>
-                <span className="text-text-muted">Gamelan Fusion</span>
+                <span className="text-text-muted">Gamelan Composition</span>
               </li>
               <li>
-                <span className="text-text-muted">Cultural Consultation</span>
+                <span className="text-text-muted">Malay Gamelan coaching</span>
               </li>
             </ul>
           </div>
@@ -115,20 +147,9 @@ export default function Footer() {
 
         <Separator className="my-8 bg-fantasy-gold/20" />
 
-        <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-center items-center">
           <div className="text-text-muted text-sm mb-4 md:mb-0">
             © {currentYear} Fahmie Farhan Music. All rights reserved.
-          </div>
-          <div className="flex space-x-6 text-sm">
-            <Link href="#" className="text-text-muted hover:text-fantasy-gold transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="#" className="text-text-muted hover:text-fantasy-gold transition-colors">
-              Terms of Service
-            </Link>
-            <Link href="#" className="text-text-muted hover:text-fantasy-gold transition-colors">
-              Licensing Info
-            </Link>
           </div>
         </div>
       </div>

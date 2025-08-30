@@ -136,9 +136,8 @@ export default function AdminSocialLinkEditPage({ params }: { params: { id: stri
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Youtube">Youtube</SelectItem>
+                  <SelectItem value="Spotify">Spotify</SelectItem>
                   <SelectItem value="Instagram">Instagram</SelectItem>
-                  <SelectItem value="Music">Music (SoundCloud/Spotify)</SelectItem>
-                  <SelectItem value="ExternalLink">External Link (Generic)</SelectItem>
                   {/* Add more icons as needed */}
                 </SelectContent>
               </Select>
