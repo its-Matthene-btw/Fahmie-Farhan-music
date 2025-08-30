@@ -250,6 +250,12 @@ export default function PortfolioPage() {
     ? videos
     : videos.filter(video => video.category?.toLowerCase() === activeTab.toLowerCase());
 
+  // Build category list dynamically from fetched videos (preserve original casing)
+  const categoryList = [
+    'All',
+    ...Array.from(new Set(videos.map(v => v.category?.trim()).filter(Boolean)))
+  ];
+
   return (
     <div className="min-h-screen bg-deep-black text-text-white">
 
@@ -275,20 +281,23 @@ export default function PortfolioPage() {
       <section className="py-0 px-6 bg-deep-black">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {['all', 'Orchestral', 'Gamelan', 'Cinematic', 'Ambient'].map((tab) => (
+            {categoryList.map((tab) => {
+              const tabKey = tab.toLowerCase();
+              return (
                 <Button
-                    key={tab}
-                    variant={activeTab === tab ? "default" : "outline"}
-                    onClick={() => handleTabChange(tab)}
-                    className={`capitalize ${
-                        activeTab === tab 
-                        ? 'bg-fantasy-gold text-deep-black' 
-                        : 'border-fantasy-gold/30 text-fantasy-gold hover:bg-fantasy-gold/10'
-                    }`}
+                  key={tab}
+                  variant={activeTab === tabKey ? "default" : "outline"}
+                  onClick={() => handleTabChange(tabKey)}
+                  className={`capitalize ${
+                    activeTab === tabKey
+                      ? 'bg-fantasy-gold text-deep-black'
+                      : 'border-fantasy-gold/30 text-fantasy-gold hover:bg-fantasy-gold/10'
+                  }`}
                 >
-                    {tab}
+                  {tab}
                 </Button>
-            ))}
+              );
+            })}
           </div>
 
           {isLoading ? (

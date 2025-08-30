@@ -53,7 +53,6 @@ const MusicTrackForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) 
     const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
     const [published, setPublished] = useState(false);
     const [featured, setFeatured] = useState(false);
-    const [youtubeUrl, setYoutubeUrl] = useState('');
 
     useEffect(() => {
         if (initialData) {
@@ -73,26 +72,6 @@ const MusicTrackForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) 
         setCoverImageFile(null);
     }, [initialData]);
 
-    const handleYouTubeUrlPaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
-        const pastedUrl = e.clipboardData.getData('text');
-        setYoutubeUrl(pastedUrl);
-        if (!pastedUrl) {
-            return;
-        }
-        try {
-            const response = await fetch(`/api/youtube-info?url=${encodeURIComponent(pastedUrl)}`);
-            if (response.ok) {
-                const data = await response.json();
-                setTitle(data.title);
-                setDescription(data.description);
-            } else {
-                alert('Failed to fetch video information.');
-            }
-        } catch (error) {
-            console.error('Error fetching YouTube video information:', error);
-            alert('Failed to fetch video information.');
-        }
-    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -109,10 +88,7 @@ const MusicTrackForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) 
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto p-1">
-            <div>
-                <Label htmlFor="youtubeUrl">YouTube Music URL</Label>
-                <Input id="youtubeUrl" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} onPaste={handleYouTubeUrlPaste} />
-            </div>
+            {/* YouTube Music URL removed from MusicTrackForm */}
             <div><Label htmlFor="title">Title</Label><Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required /></div>
             <div><Label htmlFor="category">Category</Label><Input id="category" value={category} onChange={(e) => setCategory(e.target.value)} /></div>
             <div><Label htmlFor="description">Description</Label><Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} /></div>
@@ -141,7 +117,6 @@ const VideoForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [published, setPublished] = useState(false);
     const [featured, setFeatured] = useState(false);
-    const [youtubeUrl, setYoutubeUrl] = useState('');
 
     useEffect(() => {
         if (initialData) {
@@ -162,27 +137,6 @@ const VideoForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
         setVideoFile(null);
     }, [initialData]);
 
-    const handleYouTubeUrlPaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
-        const pastedUrl = e.clipboardData.getData('text');
-        setYoutubeUrl(pastedUrl);
-        if (!pastedUrl) {
-            return;
-        }
-        try {
-            const response = await fetch(`/api/youtube-info?url=${encodeURIComponent(pastedUrl)}`);
-            if (response.ok) {
-                const data = await response.json();
-                setTitle(data.title);
-                setDescription(data.description);
-                setVideoId(data.videoId);
-            } else {
-                alert('Failed to fetch video information.');
-            }
-        } catch (error) {
-            console.error('Error fetching YouTube video information:', error);
-            alert('Failed to fetch video information.');
-        }
-    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -198,11 +152,8 @@ const VideoForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <Label htmlFor="youtubeUrl">YouTube URL</Label>
-                <Input id="youtubeUrl" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} onPaste={handleYouTubeUrlPaste} />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto p-1">
+            {/* YouTube URL removed from VideoForm */}
             <div><Label htmlFor="title">Title</Label><Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required /></div>
             <div><Label htmlFor="videoId">YouTube Video ID (Optional)</Label><Input id="videoId" value={videoId} onChange={(e) => setVideoId(e.target.value)} /></div>
             <div><Label htmlFor="category">Category</Label><Input id="category" value={category} onChange={(e) => setCategory(e.target.value)} /></div>
@@ -246,7 +197,7 @@ const SocialLinkForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any) 
     const iconOptions = ['Youtube', 'Instagram', 'Twitter', 'Facebook', 'Linkedin', 'Github', 'Twitch', 'Discord', 'Spotify', 'Soundcloud', 'Other...'];
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
             <div><Label htmlFor="name">Name</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} required /></div>
             <div><Label htmlFor="url">URL</Label><Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} required /></div>
             <div>
@@ -307,7 +258,7 @@ const TestimonialForm = ({ initialData, onSubmit, isSubmitting, onCancel }: any)
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
             <div><Label htmlFor="name">Name</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} required /></div>
             <div><Label htmlFor="role">Role</Label><Input id="role" value={role} onChange={(e) => setRole(e.target.value)} /></div>
             <div><Label htmlFor="content">Content</Label><Textarea id="content" value={content} onChange={(e) => setContent(e.target.value)} required /></div>
@@ -927,25 +878,33 @@ export default function AdminPage() {
             <Dialog open={isMusicModalOpen} onOpenChange={setIsMusicModalOpen}>
                 <DialogContent className="bg-gray-900 border-gray-800 text-white">
                     <DialogHeader><DialogTitle>{editingMusicTrack ? 'Edit Music Track' : 'Add New Music Track'}</DialogTitle></DialogHeader>
-                    <MusicTrackForm initialData={editingMusicTrack} onSubmit={handleMusicFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsMusicModalOpen(false)} />
+                    <div className="max-h-[70vh] overflow-y-auto p-4">
+                        <MusicTrackForm initialData={editingMusicTrack} onSubmit={handleMusicFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsMusicModalOpen(false)} />
+                    </div>
                 </DialogContent>
             </Dialog>
             <Dialog open={isVideoModalOpen} onOpenChange={setIsVideoModalOpen}>
                 <DialogContent className="bg-gray-900 border-gray-800 text-white">
                     <DialogHeader><DialogTitle>{editingVideo ? 'Edit Video' : 'Add New Video'}</DialogTitle></DialogHeader>
-                    <VideoForm initialData={editingVideo} onSubmit={handleVideoFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsVideoModalOpen(false)} />
+                    <div className="max-h-[70vh] overflow-y-auto p-4">
+                        <VideoForm initialData={editingVideo} onSubmit={handleVideoFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsVideoModalOpen(false)} />
+                    </div>
                 </DialogContent>
             </Dialog>
             <Dialog open={isSocialLinkModalOpen} onOpenChange={setIsSocialLinkModalOpen}>
                 <DialogContent className="bg-gray-900 border-gray-800 text-white">
                     <DialogHeader><DialogTitle>{editingSocialLink ? 'Edit Social Link' : 'Add New Social Link'}</DialogTitle></DialogHeader>
-                    <SocialLinkForm initialData={editingSocialLink} onSubmit={handleSocialLinkFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsSocialLinkModalOpen(false)} />
+                    <div className="max-h-[60vh] overflow-y-auto p-4">
+                        <SocialLinkForm initialData={editingSocialLink} onSubmit={handleSocialLinkFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsSocialLinkModalOpen(false)} />
+                    </div>
                 </DialogContent>
             </Dialog>
             <Dialog open={isTestimonialModalOpen} onOpenChange={setIsTestimonialModalOpen}>
                 <DialogContent className="bg-gray-900 border-gray-800 text-white">
                     <DialogHeader><DialogTitle>{editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}</DialogTitle></DialogHeader>
-                    <TestimonialForm initialData={editingTestimonial} onSubmit={handleTestimonialFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsTestimonialModalOpen(false)} />
+                    <div className="max-h-[60vh] overflow-y-auto p-4">
+                        <TestimonialForm initialData={editingTestimonial} onSubmit={handleTestimonialFormSubmit} isSubmitting={isSubmitting} onCancel={() => setIsTestimonialModalOpen(false)} />
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>
