@@ -24,7 +24,7 @@ export default function EditVideoPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [videoId, setVideoId] = useState('');
-  const [youtubeUrl, setYoutubeUrl] = useState('');
+  // const [youtubeUrl, setYoutubeUrl] = useState(''); // Removed
   const [category, setCategory] = useState('');
   const [views, setViews] = useState('');
   const [published, setPublished] = useState(false);
@@ -32,11 +32,7 @@ export default function EditVideoPage({ params }: { params: { id: string } }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const extractVideoId = (url: string) => {
-    const regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S+)?$/;
-    const match = url.match(regExp);
-    return (match && match[1]) ? match[1] : null;
-  };
+  // extractVideoId function removed
 
   useEffect(() => {
     const fetchVideo = async () => {
@@ -48,7 +44,7 @@ export default function EditVideoPage({ params }: { params: { id: string } }) {
         const data: Video = await response.json();
         setTitle(data.title);
         setVideoId(data.videoId);
-        setYoutubeUrl(`https://www.youtube.com/watch?v=${data.videoId}`); // Pre-fill YouTube URL
+        // setYoutubeUrl(`https://www.youtube.com/watch?v=${data.videoId}`); // Removed
         setCategory(data.category || '');
         setViews(data.views || '');
         setPublished(data.published);
@@ -64,28 +60,7 @@ export default function EditVideoPage({ params }: { params: { id: string } }) {
     fetchVideo();
   }, [id]);
 
-  const handleFetchYoutubeDetails = async () => {
-    const idFromUrl = extractVideoId(youtubeUrl);
-    if (!idFromUrl) {
-      alert('Please enter a valid YouTube URL.');
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/youtube-info?videoId=${idFromUrl}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setTitle(data.title || '');
-      setVideoId(idFromUrl);
-      // setCategory(data.category || '');
-      setViews(data.viewCount || '');
-    } catch (error) {
-      console.error('Error fetching YouTube details:', error);
-      alert('Failed to fetch YouTube details. Please check the URL or try again later.');
-    }
-  };
+  // handleFetchYoutubeDetails function removed
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,18 +110,7 @@ export default function EditVideoPage({ params }: { params: { id: string } }) {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="youtubeUrl">YouTube URL</Label>
-              <div className="flex space-x-2">
-                <Input 
-                  id="youtubeUrl" 
-                  value={youtubeUrl} 
-                  onChange={(e) => setYoutubeUrl(e.target.value)} 
-                  placeholder="e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                />
-                <Button type="button" onClick={handleFetchYoutubeDetails}>Fetch Details</Button>
-              </div>
-            </div>
+            {/* YouTube URL section removed */}
             <div>
               <Label htmlFor="title">Title</Label>
               <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />

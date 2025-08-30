@@ -12,7 +12,7 @@ interface MusicTrack {
   title?: string;
   category?: string;
   description?: string;
-  audioUrl?: string;
+  // audioUrl?: string; // Removed
   coverImageUrl?: string;
   fileSize?: string;
   published?: boolean;
@@ -30,9 +30,9 @@ export default function MusicTrackForm({ initialData, onSubmit, isSubmitting }: 
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [coverImageFile, setCoverImageFile] = useState<File | null>(null); // CHANGE: Added state for cover image file
-  const [audioUrl, setAudioUrl] = useState('');
-  const [coverImageUrl, setCoverImageUrl] = useState(''); // CHANGE: Added state for cover image URL
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
+  // const [audioUrl, setAudioUrl] = useState(''); // Removed
+  const [coverImageUrl, setCoverImageUrl] = useState('');
   const [fileSize, setFileSize] = useState('');
   const [published, setPublished] = useState(false);
   const [featured, setFeatured] = useState(false);
@@ -42,8 +42,8 @@ export default function MusicTrackForm({ initialData, onSubmit, isSubmitting }: 
       setTitle(initialData.title || '');
       setCategory(initialData.category || '');
       setDescription(initialData.description || '');
-      setAudioUrl(initialData.audioUrl || '');
-      setCoverImageUrl(initialData.coverImageUrl || ''); // CHANGE: Set initial cover image URL
+      // setAudioUrl(initialData.audioUrl || ''); // Removed
+      setCoverImageUrl(initialData.coverImageUrl || '');
       setFileSize(initialData.fileSize || '');
       setPublished(initialData.published || false);
       setFeatured(initialData.featured || false);
@@ -59,11 +59,11 @@ export default function MusicTrackForm({ initialData, onSubmit, isSubmitting }: 
     if (audioFile) {
       formData.append('audioFile', audioFile);
     }
-    if (coverImageFile) { // CHANGE: Append cover image file
+    if (coverImageFile) {
         formData.append('coverImageFile', coverImageFile);
     }
-    formData.append('audioUrl', audioUrl);
-    formData.append('coverImageUrl', coverImageUrl); // CHANGE: Append cover image URL
+    // formData.append('audioUrl', audioUrl); // Removed
+    formData.append('coverImageUrl', coverImageUrl);
     formData.append('fileSize', fileSize);
     formData.append('published', String(published));
     formData.append('featured', String(featured));
@@ -88,20 +88,20 @@ export default function MusicTrackForm({ initialData, onSubmit, isSubmitting }: 
       <div>
         <Label htmlFor="coverImageFile">Cover Image (Leave blank to keep current)</Label>
         {coverImageUrl && !coverImageFile && <img src={coverImageUrl} alt="Current cover" className="w-24 h-24 object-cover my-2" />}
-        <Input 
-          id="coverImageFile" 
-          type="file" 
-          accept="image/*" 
+        <Input
+          id="coverImageFile"
+          type="file"
+          accept="image/*"
           onChange={(e) => setCoverImageFile(e.target.files ? e.target.files[0] : null)}
         />
       </div>
       <div>
         <Label htmlFor="audioFile">Audio File (Leave blank to keep current)</Label>
-        {audioUrl && !audioFile && <audio controls src={audioUrl} className="w-full my-2" />}
-        <Input 
-          id="audioFile" 
-          type="file" 
-          accept="audio/*" 
+        {/* {audioUrl && !audioFile && <audio controls src={audioUrl} className="w-full my-2" />} // Removed */}
+        <Input
+          id="audioFile"
+          type="file"
+          accept="audio/*"
           onChange={(e) => setAudioFile(e.target.files ? e.target.files[0] : null)}
         />
       </div>
